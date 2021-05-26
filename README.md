@@ -1,1 +1,1 @@
-# M5D7-frontend
+# Strive Blog Template
