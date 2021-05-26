@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Container, Form, Image, Button } from "react-bootstrap";
+import { Container, Form, Image, Button, Row, Col } from "react-bootstrap";
 import { withRouter } from "react-router";
 import BlogAuthor from "../../components/blog/blog-author/index.jsx";
 import CommentList from "../../components/CommentList.jsx";
@@ -102,6 +102,23 @@ class Blog extends Component {
     }
   }
 
+  getPDF = async () => {
+    const { id } = this.props.match.params;
+    try {
+      const api = process.env.REACT_APP_BACKEND_API_URL;
+      let res = await fetch(api + `/blogPosts/${id}/PDFDownload`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(this.state.blog),
+      });
+      if (!res.ok) throw new Error("something went wrong with PDF Creation");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   render() {
     const { loading, blog } = this.state;
     if (loading) {
@@ -111,7 +128,16 @@ class Blog extends Component {
         <div className='blog-details-root'>
           <Container>
             <Image className='blog-details-cover' src={blog.cover} fluid />
-            <h1 className='blog-details-title'>{blog.title}</h1>
+            <Row>
+              <Col>
+                <h1 className='blog-details-title'>{blog.title}</h1>
+              </Col>
+              <Col className='d-flex justify-content-end align-items-center '>
+                <Button className='btn' onClick={this.getPDF}>
+                  Create PDF
+                </Button>
+              </Col>
+            </Row>
 
             <div className='blog-details-container'>
               <div className='blog-details-author'>
