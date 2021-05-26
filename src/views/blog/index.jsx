@@ -104,19 +104,23 @@ class Blog extends Component {
 
   getPDF = async () => {
     const { id } = this.props.match.params;
-    try {
-      const api = process.env.REACT_APP_BACKEND_API_URL;
-      let res = await fetch(api + `/blogPosts/${id}/PDFDownload`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(this.state.blog),
-      });
-      if (!res.ok) throw new Error("something went wrong with PDF Creation");
-    } catch (error) {
-      console.log(error);
-    }
+
+    const api = process.env.REACT_APP_BACKEND_API_URL;
+    fetch(api + `/blogPosts/${id}/PDFDownload`, {
+      headers: {
+        "Content-Type": "application/json",
+        Origin: process.env.REACT_APP_FRONTEND_API_URL,
+      },
+    })
+      .then((response) => response.blob())
+      .then((blob) => URL.createObjectURL(blob))
+      .then((url) => {
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "blog.pdf";
+        a.click();
+      })
+      .catch((err) => console.error(err));
   };
 
   render() {
@@ -133,9 +137,9 @@ class Blog extends Component {
                 <h1 className='blog-details-title'>{blog.title}</h1>
               </Col>
               <Col className='d-flex justify-content-end align-items-center '>
-                <Button className='btn' onClick={this.getPDF}>
+                <a className='btn btn-primary' onClick={this.getPDF}>
                   Create PDF
-                </Button>
+                </a>
               </Col>
             </Row>
 
