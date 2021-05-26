@@ -1,19 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, {  useState } from "react";
 import NavBar from "./components/navbar";
 import Footer from "./components/footer";
 import Home from "./views/home";
 import Blog from "./views/blog";
 import NewBlogPost from "./views/new";
-import { BrowserRouter, HashRouter, Route, Switch } from "react-router-dom";
-import { useQueryParam, NumberParam, StringParam} from 'use-query-params';
+import {Route } from "react-router-dom";
 
-const Router =
-  process.env.NODE_ENV === "production" ? HashRouter : BrowserRouter;
+
+// const Router =
+//   process.env.NODE_ENV === "production" ? HashRouter : BrowserRouter;
   
 function App(props) {
   const [query, setQuery] = useState("")
-  const [updated, seUpdated] = useState(false)
-  const [title, setTitle] = useQueryParam('title', StringParam);
+ 
 
   const handleChange = (query) => {
     setQuery(query)

@@ -3,7 +3,6 @@ import { Container, Form, Image, Button } from "react-bootstrap";
 import { withRouter } from "react-router";
 import BlogAuthor from "../../components/blog/blog-author/index.jsx";
 import CommentList from "../../components/CommentList.jsx";
-import posts from "../../data/posts.json";
 import "./styles.css";
 
 class Blog extends Component {
@@ -22,7 +21,7 @@ class Blog extends Component {
     try {
       const api = process.env.REACT_APP_BACKEND_API_URL;
       const res = await fetch(api + `/blogPosts/${id}/comments`);
-      if (!res.ok) throw "something went wrong";
+      if (!res.ok) throw new Error("something went wrong");
       const data = await res.json();
       this.setState((state) => {
         return {
@@ -49,7 +48,7 @@ class Blog extends Component {
           },
           body: JSON.stringify(this.state.comment),
         });
-        if (!res.ok) throw "something went wrong";
+        if (!res.ok) new Error("something went wrong");
         this.setState((state) => {
           return { update: true };
         });
@@ -65,7 +64,7 @@ class Blog extends Component {
     try {
       const api = process.env.REACT_APP_BACKEND_API_URL;
       const res = await fetch(api + `/blogPosts/${id}`);
-      if (!res.ok) throw "something went wrong";
+      if (!res.ok) new Error("something went wrong");
       const data = await res.json();
       this.setState((state) => {
         return {
