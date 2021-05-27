@@ -3,6 +3,8 @@ import "react-quill/dist/quill.snow.css";
 import ReactQuill from "react-quill";
 import { Container, Form, Button } from "react-bootstrap";
 import "./styles.css";
+import isEmail from "validator/lib/isEmail";
+
 export default class NewBlogPost extends Component {
   constructor(props) {
     super(props);
@@ -11,7 +13,7 @@ export default class NewBlogPost extends Component {
         title: "",
         content: "",
         category: "",
-        author: { name: "", avatar: "" },
+        author: { name: "", avatar: "", email: "" },
         cover: "",
         readTime: { value: 2, unit: "minute" },
       },
@@ -94,34 +96,51 @@ export default class NewBlogPost extends Component {
     }
   };
 
+  sendEmail = async (id) => {
+    try {
+      const api = process.env.REACT_APP_BACKEND_API_URL;
+      let res = await fetch(api + `/blogPosts/${id}/email`);
+      if (!res.ok) {
+        throw new Error("fileupload got an error!");
+      } else {
+        console.log("Check your emails");
+      }
+    } catch (error) {}
+  };
+
   handleSubmit(e) {
     e.preventDefault();
     this.postBlogPost();
   }
 
   postBlogPost = async () => {
-    try {
-      const api = process.env.REACT_APP_BACKEND_API_URL;
-      let res = await fetch(api + "/blogPosts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(this.state.post),
-      });
-      if (res.ok) {
-        console.log("BlogPost created");
-        let data = await res.json();
-        if (this.state.authorAvatar) {
-          await this.fileUpload(data._id, "uploadAvatar");
+    if (isEmail(this.state.post.author.email)) {
+      try {
+        const api = process.env.REACT_APP_BACKEND_API_URL;
+        let res = await fetch(api + "/blogPosts", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(this.state.post),
+        });
+        if (res.ok) {
+          console.log("BlogPost created");
+          let data = await res.json();
+          if (this.state.authorAvatar) {
+            await this.fileUpload(data._id, "uploadAvatar");
+          }
+          if (this.state.blogPostCover) {
+            await this.fileUpload(data._id, "uploadCover");
+          }
+          await this.sendEmail(data._id);
+          this.props.history.push("/");
         }
-        if (this.state.blogPostCover) {
-          await this.fileUpload(data._id, "uploadCover");
-        }
-        this.props.history.push("/");
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
+    } else {
+      alert("Please put a valid email");
     }
   };
 
@@ -146,6 +165,16 @@ export default class NewBlogPost extends Component {
               required
               placeholder='Name'
               value={this.state.post.author.name}
+              onChange={(e) => this.handleChangeName(e)}
+            />
+          </Form.Group>
+          <Form.Group controlId='email' className='mt-3'>
+            <Form.Label>Author's Email</Form.Label>
+            <Form.Control
+              size='lg'
+              required
+              placeholder='email'
+              value={this.state.post.author.email}
               onChange={(e) => this.handleChangeName(e)}
             />
           </Form.Group>
@@ -198,6 +227,7 @@ export default class NewBlogPost extends Component {
             <ReactQuill
               id='content'
               value={this.state.post.content}
+              required
               onChange={(e) => this.handleChange(e)}
               className='new-blog-content'
             />
