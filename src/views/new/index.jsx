@@ -101,7 +101,7 @@ export default class NewBlogPost extends Component {
       const api = process.env.REACT_APP_BACKEND_API_URL;
       let res = await fetch(api + `/blogPosts/${id}/email`);
       if (!res.ok) {
-        throw new Error("fileupload got an error!");
+        throw new Error("Email sending got an error!");
       } else {
         console.log("Check your emails");
       }
